@@ -399,3 +399,50 @@ for train_index, test_index in kf.split(bryant_shots):
     print(cv_train[['game_id', 'shot_made_flag', 'game_id_enc']].sample(n=1))
 
     
+
+
+
+
+    """
+
+
+For binary classification usually mean target encoding is used
+For regression mean could be changed to median, quartiles, etc.
+For multi-class classification with N classes we create N features with target mean for each category in one vs. all fashion
+
+
+New data from this part after. https://www.kaggle.com/c/two-sigma-connect-rental-listing-inquiries
+"""
+
+# Create mean target encoded feature
+train['RoofStyle_enc'], test['RoofStyle_enc'] = mean_target_encoding(train=train,
+                                                                     test=test,
+                                                                     target='SalePrice',
+                                                                     categorical='RoofStyle',
+                                                                     alpha=10)
+
+# Look at the encoding
+print(test[['RoofStyle', 'RoofStyle_enc']].drop_duplicates())
+
+
+
+# Read DataFrame
+twosigma = pd.read_csv('twosigma_train.csv')
+
+# Find the number of missing values in each column
+print(twosigma.isnull().sum())
+
+# Look at the columns with the missing values
+print(twosigma[["building_id", "price"]].head())
+
+# Import SimpleImputer
+from sklearn.impute import SimpleImputer
+
+# Create constant imputer
+constant_imputer = SimpleImputer(strategy='constant', fill_value="MISSING")
+
+# building_id imputation
+rental_listings[['building_id']] = constant_imputer.fit_transform(rental_listings[["building_id"]])
+
+
+
