@@ -446,3 +446,34 @@ rental_listings[['building_id']] = constant_imputer.fit_transform(rental_listing
 
 
 
+import numpy as np
+from sklearn.metrics import mean_squared_error
+from math import sqrt
+
+# Calculate the mean fare_amount on the validation_train data
+naive_prediction = np.mean(validation_train['fare_amount'])
+
+# Assign naive prediction to all the holdout observations
+validation_test['pred'] = naive_prediction
+
+# Measure the local RMSE
+rmse = sqrt(mean_squared_error(validation_test['fare_amount'], validation_test['pred']))
+print('Validation RMSE for Baseline I model: {:.3f}'.format(rmse))
+
+
+from sklearn.ensemble import RandomForestRegressor
+
+# Select only numeric features
+features = ['pickup_longitude', 'pickup_latitude', 'dropoff_longitude',
+            'dropoff_latitude', 'passenger_count', 'hour']
+
+# Train a Random Forest model
+rf = RandomForestRegressor()
+rf.fit(train[features], train.fare_amount)
+
+# Make predictions on the test data
+test['fare_amount'] = rf.predict(test[features])
+
+# Write predictions
+test[['id','fare_amount']].to_csv('rf_sub.csv', index=False)
+
